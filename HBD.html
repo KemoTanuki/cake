@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Animated Cake Text</title>
+  <style>
+    body {
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .cake-container {
+      position: relative;
+      width: 400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .cake-container img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    .moving-text {
+      position: absolute;
+      left: -100%;
+      width: 100%;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #D32F2F;
+      text-shadow: 2px 2px 8px #fff, 0 0 10px #fff;
+      pointer-events: none;
+      z-index: 2;
+      /* เริ่มลอยอยู่ล่างๆ ของรูป */
+      top: 82%;
+      animation: slide 18s linear 1, moveToBottom 0.7s ease-in-out 1 18s forwards;
+    }
+    @keyframes slide {
+      0%   { left: -100%; }
+      33.33% { left: 100%; }
+      33.34% { left: -100%; }
+      66.66% { left: 100%; }
+      66.67% { left: -100%; }
+      100% { left: 100%; }
+    }
+    @keyframes moveToBottom {
+      0%   { left: 100%; top: 82%; }
+      100% { left: 0; top: 88%; }
+    }
+    #confetti-canvas {
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+  <div class="cake-container">
+    <img src="https://img5.pic.in.th/file/secure-sv1/bb1366c0e969caf7db40f5fc32ce960e.png" alt="เค้กวันเกิด" />
+    <canvas id="confetti-canvas"></canvas>
+    <div class="moving-text">เพื่อน..ต้อย และมนตรี</div>
+  </div>
+  <script>
+    // Resize canvas to fit cake-container
+    function resizeCanvas() {
+      const cake = document.querySelector('.cake-container');
+      const canvas = document.getElementById('confetti-canvas');
+      canvas.width = cake.offsetWidth;
+      canvas.height = cake.offsetHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Simple confetti effect
+    function launchConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      const confetti = [];
+      const colors = ['#f44336','#ffeb3b','#4caf50','#2196f3','#ff9800','#e91e63','#00bcd4'];
+// ...existing code...
+for(let i=0;i<80;i++){
+  confetti.push({
+    x: W/2, 
+    y: H*0.88, // เปลี่ยนจาก H/2 เป็น H*0.88 ให้พลุออกจากล่างรูป
+    r: Math.random()*6+4,
+    d: Math.random()*W/2,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    tilt: Math.random()*10-5,
+    tiltAngle: 0,
+    angle: Math.random()*2*Math.PI,
+    speed: Math.random()*2+2
+  });
+}
+let frame = 0;
+function draw() {
+  ctx.clearRect(0,0,W,H);
+  for(let i=0;i<confetti.length;i++){
+    let c = confetti[i];
+    c.x += Math.cos(c.angle) * c.speed;
+    c.y += Math.sin(c.angle) * c.speed + frame*0.01;
+    c.tiltAngle += 0.1;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI);
+    ctx.fillStyle = c.color;
+    ctx.globalAlpha = 0.9;
+    ctx.fill();
+    ctx.restore();
+  }
+  frame++;
+  if(frame < 200) requestAnimationFrame(draw); // อยู่บนจอนานขึ้น (ประมาณ 3 วินาที)
+}
+draw();
+    }
+
+    // Trigger confetti after animation
+    setTimeout(() => {
+      launchConfetti();
+    }, 18700); // 18s slide + 0.7s moveToBottom
+
+    // Ensure canvas resizes with container
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+</body>
+</html>
